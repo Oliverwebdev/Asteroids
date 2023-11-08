@@ -332,3 +332,77 @@ function newAsteroid(x, y, r) {
   }
   
   
+function newShip() {
+    // Erstellt ein neues Raumschiff für den Spieler.
+    return {
+      x: canv.width / 2,
+      y: canv.height / 2,
+      a: (90 / 180) * Math.PI,
+      r: shipSize / 2,
+      blinkNum: Math.ceil(shipInvDur / shipBlinkDur),
+      blinkTime: Math.ceil(shipBlinkDur * fps),
+      canShoot: true,
+      dead: false,
+      explodeTime: 0,
+      lasers: [],
+      rot: 0,
+      thrusting: false,
+      thrust: {
+        x: 0,
+        y: 0,
+      },
+    };
+  }
+  
+  function shootLaser() {
+    // Lässt das Raumschiff einen Laserstrahl abfeuern.
+    if (ship.canShoot && ship.lasers.length < laserMax) {
+      ship.lasers.push({
+        x: ship.x + (4 / 3) * ship.r * Math.cos(ship.a),
+        y: ship.y - (4 / 3) * ship.r * Math.sin(ship.a),
+        xv: (laserSpd * Math.cos(ship.a)) / fps,
+        yv: (-laserSpd * Math.sin(ship.a)) / fps,
+        dist: 0,
+        explodeTime: 0,
+      });
+      fxLaser.play();
+    }
+  
+    ship.canShoot = false;
+  }
+  
+  function Music(srcLow, srcHigh) {
+    // Definiert die Musikklasse mit niedriger und hoher Tonhöhe.
+    this.soundLow = new Audio(srcLow);
+    this.soundHigh = new Audio(srcHigh);
+    this.low = true;
+    this.tempo = 1.0;
+    this.beatTime = 0;
+  
+    this.play = function () {
+      // Spielt die Musik ab, abhängig von der aktuellen Tonhöhe.
+      if (musicOn) {
+        if (this.low) {
+          this.soundLow.play();
+        } else {
+          this.soundHigh.play();
+        }
+        this.low = !this.low;
+      }
+    };
+  
+    this.setAsteroidRatio = function (ratio) {
+      // Passt die Geschwindigkeit der Musik anhand des Asteroidenverhältnisses an.
+      this.tempo = 1.0 - 0.75 * (1.0 - ratio);
+    };
+  
+    this.tick = function () {
+      // Tick-Funktion für die Musik, um den Beat zu halten.
+      if (this.beatTime == 0) {
+        this.play();
+        this.beatTime = Math.ceil(this.tempo * fps);
+      } else {
+        this.beatTime--;
+      }
+    };
+  }
