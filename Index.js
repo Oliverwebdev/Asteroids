@@ -406,3 +406,405 @@ function newShip() {
       }
     };
   }
+
+
+// Die Funktionen newLevel, newShip, shootLaser und die Music-Klasse haben spezifische Aufgaben im Spielablauf:
+// newLevel startet ein neues Level und initialisiert die Anzeige.
+// newShip erstellt ein neues Raumschiff mit den festgelegten Eigenschaften.
+// shootLaser lässt das Raumschiff einen Laserstrahl abfeuern.
+// Die Music-Klasse steuert die Hintergrundmusik und passt die Geschwindigkeit an das Spiel an.
+// Konstruktorfunktion für die Verwaltung von Soundeffekten
+
+function Sound(src, maxStreams = 1, vol = 1.0) {
+    this.streamNum = 0;
+    this.streams = [];
+    // Erzeuge Audio-Streams basierend auf maxStreams und setze ihre Lautstärke
+    for (let i = 0; i < maxStreams; i++) {
+      this.streams.push(new Audio(src));
+      this.streams[i].volume = vol;
+    }
+  
+    // Funktion zum Abspielen des Soundeffekts
+    this.play = function () {
+      if (soundOn) {
+        this.streamNum = (this.streamNum + 1) % maxStreams;
+        this.streams[this.streamNum].play();
+      }
+    };
+  
+    // Funktion zum Stoppen des Soundeffekts
+    this.stop = function () {
+      this.streams[this.streamNum].pause();
+      this.streams[this.streamNum].currentTime = 0;
+    };
+  }
+  
+  // Aktualisierungs Funktion für das spiel
+  function update() {
+    const blinkOn = ship.blinkNum % 2 == 0;
+    const exploding = ship.explodeTime > 0;
+  
+    // ticker für die Musik
+    music.tick();
+  
+    // zeichne den Hintergrund
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canv.width, canv.height);
+  
+    // zeichne die asteroids
+    var a, r, x, y, offs, vert;
+    for (let i = 0; i < roids.length; i++) {
+      ctx.strokeStyle = "slategrey";
+      ctx.lineWidth = shipSize / 20;
+  
+      // hol die Eigenschaften für die aktuelle Asteroid
+      a = roids[i].a;
+      r = roids[i].r;
+      x = roids[i].x;
+      y = roids[i].y;
+      offs = roids[i].offs;
+      vert = roids[i].vert;
+  
+      // zeichne den pfade
+      ctx.beginPath();
+      ctx.moveTo(x + r * offs[0] * Math.cos(a), y + r * offs[0] * Math.sin(a));
+  
+      // zeichne die polygonen
+      for (let j = 1; j < vert; j++) {
+        ctx.lineTo(
+          x + r * offs[j] * Math.cos(a + (j * Math.PI * 2) / vert),
+          y + r * offs[j] * Math.sin(a + (j * Math.PI * 2) / vert)
+        );
+      }
+      ctx.closePath();
+      ctx.stroke();
+  
+      // zeige asteroiden kollision kreis
+      if (showBounding) {
+        ctx.strokeStyle = "lime";
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2, false);
+        ctx.stroke();
+      }
+    }
+  
+    // bewege das raumschiff
+    if (ship.thrusting && !ship.dead) {
+      ship.thrust.x += (shipThrust * Math.cos(ship.a)) / fps;
+      ship.thrust.y -= (shipThrust * Math.sin(ship.a)) / fps;
+      fxThrust.play();
+  
+      // zeichne die schubflamme
+      if (!exploding && blinkOn) {
+        ctx.fillStyle = "red";
+        ctx.strokeStyle = "yellow";
+        ctx.lineWidth = shipSize / 10;
+        ctx.beginPath();
+        ctx.moveTo(
+          // hinten links
+          ship.x - ship.r * ((2 / 3) * Math.cos(ship.a) + 0.5 * Math.sin(ship.a)),
+          ship.y + ship.r * ((2 / 3) * Math.sin(ship.a) - 0.5 * Math.cos(ship.a))
+        );
+        ctx.lineTo(
+          // hintere linie (boden vom schiff)
+          ship.x - ((ship.r * 5) / 3) * Math.cos(ship.a),
+          ship.y + ((ship.r * 5) / 3) * Math.sin(ship.a)
+        );
+        ctx.lineTo(
+          // hinten rechts
+          ship.x - ship.r * ((2 / 3) * Math.cos(ship.a) - 0.5 * Math.sin(ship.a)),
+          ship.y + ship.r * ((2 / 3) * Math.sin(ship.a) + 0.5 * Math.cos(ship.a))
+        );
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      }
+    } else {
+      // Reibung anwenden (das Schiff verlangsamen, wenn es nicht stößt)
+      ship.thrust.x -= (friction * ship.thrust.x) / fps;
+      ship.thrust.y -= (friction * ship.thrust.y) / fps;
+      fxThrust.stop();
+    }
+  
+    // zeichne das dreieckige schiff
+    if (!exploding) {
+      if (blinkOn && !ship.dead) {
+        drawShip(ship.x, ship.y, ship.a);
+      }
+  
+      // behandle blinken
+      if (ship.blinkNum > 0) {
+        // reduziere die blinken zeit
+        ship.blinkTime--;
+  
+        // reduziere die blinken nummer
+        if (ship.blinkTime == 0) {
+          ship.blinkTime = Math.ceil(shipBlinkDur * fps);
+          ship.blinkNum--;
+        }
+      }
+    } else {
+      // Zeichne die Explosion (konzentrische Kreise in verschiedenen Farben)
+      ctx.fillStyle = "darkred";
+      ctx.beginPath();
+      ctx.arc(ship.x, ship.y, ship.r * 1.7, 0, Math.PI * 2, false);
+      ctx.fill();
+      ctx.fillStyle = "red";
+      ctx.beginPath();
+      ctx.arc(ship.x, ship.y, ship.r * 1.4, 0, Math.PI * 2, false);
+      ctx.fill();
+      ctx.fillStyle = "orange";
+      ctx.beginPath();
+      ctx.arc(ship.x, ship.y, ship.r * 1.1, 0, Math.PI * 2, false);
+      ctx.fill();
+      ctx.fillStyle = "yellow";
+      ctx.beginPath();
+      ctx.arc(ship.x, ship.y, ship.r * 0.8, 0, Math.PI * 2, false);
+      ctx.fill();
+      ctx.fillStyle = "white";
+      ctx.beginPath();
+      ctx.arc(ship.x, ship.y, ship.r * 0.5, 0, Math.PI * 2, false);
+      ctx.fill();
+    }
+  
+    // zeige asteroiden kollision kreis
+    if (showBounding) {
+      ctx.strokeStyle = "lime";
+      ctx.beginPath();
+      ctx.arc(ship.x, ship.y, ship.r, 0, Math.PI * 2, false);
+      ctx.stroke();
+    }
+  
+    // mittel (punkt) vom schiff
+    if (showCentreDot) {
+      ctx.fillStyle = "red";
+      ctx.fillRect(ship.x - 1, ship.y - 1, 2, 2);
+    }
+  
+    // zeichne den laser
+    for (let i = 0; i < ship.lasers.length; i++) {
+      if (ship.lasers[i].explodeTime == 0) {
+        ctx.fillStyle = "salmon";
+        ctx.beginPath();
+        ctx.arc(
+          ship.lasers[i].x,
+          ship.lasers[i].y,
+          shipSize / 15,
+          0,
+          Math.PI * 2,
+          false
+        );
+        ctx.fill();
+      } else {
+        // aussehen der explosion
+        ctx.fillStyle = "orangered";
+        ctx.beginPath();
+        ctx.arc(
+          ship.lasers[i].x,
+          ship.lasers[i].y,
+          ship.r * 0.75,
+          0,
+          Math.PI * 2,
+          false
+        );
+        ctx.fill();
+        ctx.fillStyle = "salmon";
+        ctx.beginPath();
+        ctx.arc(
+          ship.lasers[i].x,
+          ship.lasers[i].y,
+          ship.r * 0.5,
+          0,
+          Math.PI * 2,
+          false
+        );
+        ctx.fill();
+        ctx.fillStyle = "pink";
+        ctx.beginPath();
+        ctx.arc(
+          ship.lasers[i].x,
+          ship.lasers[i].y,
+          ship.r * 0.25,
+          0,
+          Math.PI * 2,
+          false
+        );
+        ctx.fill();
+      }
+    }
+  
+    //zeichne den spiel text
+    if (textAlpha >= 0) {
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "rgba(255, 255, 255, " + textAlpha + ")";
+      ctx.font = "small-caps " + textSize + "px dejavu sans mono";
+      ctx.fillText(text, canv.width / 2, canv.height * 0.75);
+      textAlpha -= 1.0 / textFadeTime / fps;
+    } else if (ship.dead) {
+      // wenn du game over bist startet danach ein neues spiel
+      newGame();
+    }
+  
+    // draw the lives
+    let lifeColour;
+    for (let i = 0; i < lives; i++) {
+      lifeColour = exploding && i == lives - 1 ? "red" : "white";
+      drawShip(
+        shipSize + i * shipSize * 1.2,
+        shipSize,
+        0.5 * Math.PI,
+        lifeColour
+      );
+    }
+  
+    // zeichne den aktuellen score
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "white";
+    ctx.font = textSize + "px dejavu sans mono";
+    ctx.fillText(score, canv.width - shipSize / 2, shipSize);
+  
+    // zeichne highscore funktion
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "white";
+    ctx.font = textSize * 0.75 + "px dejavu sans mono";
+    ctx.fillText("BEST " + scoreHigh, canv.width / 2, shipSize);
+  
+    // treffer erkennen auf asteroids
+    let ax, ay, ar, lx, ly;
+    for (let i = roids.length - 1; i >= 0; i--) {
+      // nehme eigenschaften der asteroiden
+      ax = roids[i].x;
+      ay = roids[i].y;
+      ar = roids[i].r;
+  
+      // laser loop
+      for (let j = ship.lasers.length - 1; j >= 0; j--) {
+        // nehme laser eigenschaften
+        lx = ship.lasers[j].x;
+        ly = ship.lasers[j].y;
+  
+        // treffer erkennen
+        if (
+          ship.lasers[j].explodeTime == 0 &&
+          distBetweenPoints(ax, ay, lx, ly) < ar
+        ) {
+          // destroy the asteroid and activate the laser explosion
+          destroyAsteroid(i);
+          ship.lasers[j].explodeTime = Math.ceil(laserExplodeDur * fps);
+          break;
+        }
+      }
+    }
+  
+    // prüfe auf asteroiden kollision
+    if (!exploding) {
+      // nur wenn du nicht blinkst
+      if (ship.blinkNum == 0 && !ship.dead) {
+        for (let i = 0; i < roids.length; i++) {
+          if (
+            distBetweenPoints(ship.x, ship.y, roids[i].x, roids[i].y) <
+            ship.r + roids[i].r
+          ) {
+            explodeShip();
+            destroyAsteroid(i);
+            break;
+          }
+        }
+      }
+  
+      // drehe das schiff
+      ship.a += ship.rot;
+  
+      // bewege das schiff
+      ship.x += ship.thrust.x;
+      ship.y += ship.thrust.y;
+    } else {
+      // reduziere die explosion
+      ship.explodeTime--;
+  
+      // nach der explosion
+      if (ship.explodeTime == 0) {
+        lives--;
+        if (lives == 0) {
+          gameOver();
+        } else {
+          ship = newShip();
+        }
+      }
+    }
+  
+    // handle edge of screen
+    if (ship.x < 0 - ship.r) {
+      ship.x = canv.width + ship.r;
+    } else if (ship.x > canv.width + ship.r) {
+      ship.x = 0 - ship.r;
+    }
+    if (ship.y < 0 - ship.r) {
+      ship.y = canv.height + ship.r;
+    } else if (ship.y > canv.height + ship.r) {
+      ship.y = 0 - ship.r;
+    }
+  
+    // bewegung der laser
+    for (let i = ship.lasers.length - 1; i >= 0; i--) {
+      // check distance travelled
+      if (ship.lasers[i].dist > laserDist * canv.width) {
+        ship.lasers.splice(i, 1);
+        continue;
+      }
+  
+      // behandle die explosion
+      if (ship.lasers[i].explodeTime > 0) {
+        ship.lasers[i].explodeTime--;
+  
+        // wann soll der laser verschwinden
+        if (ship.lasers[i].explodeTime == 0) {
+          ship.lasers.splice(i, 1);
+          continue;
+        }
+      } else {
+        // bewege den laser
+        ship.lasers[i].x += ship.lasers[i].xv;
+        ship.lasers[i].y += ship.lasers[i].yv;
+  
+        // wie weit geht der laser
+        ship.lasers[i].dist += Math.sqrt(
+          Math.pow(ship.lasers[i].xv, 2) + Math.pow(ship.lasers[i].yv, 2)
+        );
+      }
+  
+      // handle edge of screen
+      if (ship.lasers[i].x < 0) {
+        ship.lasers[i].x = canv.width;
+      } else if (ship.lasers[i].x > canv.width) {
+        ship.lasers[i].x = 0;
+      }
+      if (ship.lasers[i].y < 0) {
+        ship.lasers[i].y = canv.height;
+      } else if (ship.lasers[i].y > canv.height) {
+        ship.lasers[i].y = 0;
+      }
+    }
+  
+    // bewege die asteroids
+    for (let i = 0; i < roids.length; i++) {
+      roids[i].x += roids[i].xv;
+      roids[i].y += roids[i].yv;
+  
+      // verhalten der astroids off screen
+      if (roids[i].x < 0 - roids[i].r) {
+        roids[i].x = canv.width + roids[i].r;
+      } else if (roids[i].x > canv.width + roids[i].r) {
+        roids[i].x = 0 - roids[i].r;
+      }
+      if (roids[i].y < 0 - roids[i].r) {
+        roids[i].y = canv.height + roids[i].r;
+      } else if (roids[i].y > canv.height + roids[i].r) {
+        roids[i].y = 0 - roids[i].r;
+      }
+    }
+  }
+  
