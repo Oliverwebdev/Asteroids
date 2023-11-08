@@ -282,4 +282,53 @@ function gameOver() {
         break;
     }
   }
+
+
+function newAsteroid(x, y, r) {
+    // Erstellt einen neuen Asteroiden mit den angegebenen Koordinaten und Größe.
+    const lvlMult = 1 + 0.1 * level;
+    const roid = {
+      x: x,
+      y: y,
+      xv:
+        ((Math.random() * roidSpd * lvlMult) / fps) *
+        (Math.random() < 0.5 ? 1 : -1),
+      yv:
+        ((Math.random() * roidSpd * lvlMult) / fps) *
+        (Math.random() < 0.5 ? 1 : -1),
+      a: Math.random() * Math.PI * 2,
+      r: r,
+      offs: [],
+      vert: Math.floor(Math.random() * (roidVert + 1) + roidVert / 2),
+    };
+  
+    for (let i = 0; i < roid.vert; i++) {
+      roid.offs.push(Math.random() * roidJag * 2 + 1 - roidJag);
+    }
+  
+    return roid;
+  }
+  
+  function newGame() {
+    // Setzt das Spiel auf den Anfangszustand zurück.
+    level = 0;
+    lives = gameLives;
+    score = 0;
+    ship = newShip();
+  
+    const scoreStr = localStorage.getItem(saveKeyScore);
+    scoreHigh = scoreStr ? parseInt(scoreStr) : 0;
+  
+    newLevel();
+  }
+  // Die Funktionen keyDown, keyUp, newAsteroid und newGame sind verantwortlich für die Steuerung des Raumschiffs und die Initialisierung des Spiels.
+  
+  function newLevel() {
+    // Startet ein neues Level im Spiel.
+    music.setAsteroidRatio(1);
+    text = "Level " + (level + 1);
+    textAlpha = 1.0;
+    createAsteroidBelt();
+  }
+  
   
