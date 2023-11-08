@@ -148,3 +148,47 @@ function createAsteroidBelt() {
   }
 }
 // createAsteroidBelt erstellt eine Anzahl von Asteroiden basierend auf dem aktuellen Level und roidNum.
+
+
+function destroyAsteroid(index) {
+    const x = roids[index].x;
+    const y = roids[index].y;
+    const r = roids[index].r;
+  
+    // Punkte vergeben und neue Asteroiden erstellen, basierend auf der Größe des zerstörten Asteroiden
+    if (r === Math.ceil(roidSize / 2)) {
+      roids.push(newAsteroid(x, y, Math.ceil(roidSize / 4)));
+      roids.push(newAsteroid(x, y, Math.ceil(roidSize / 4)));
+      score += roidPtsLge;
+    } else if (r === Math.ceil(roidSize / 4)) {
+      roids.push(newAsteroid(x, y, Math.ceil(roidSize / 8)));
+      roids.push(newAsteroid(x, y, Math.ceil(roidSize / 8)));
+      score += roidPtsMed;
+    } else {
+      score += roidPtsSml;
+    }
+  
+    // Überprüfen, ob die erreichte Punktzahl die bisherige Bestleistung übertrifft und sie im lokalen Speicher speichern
+    if (score > scoreHigh) {
+      scoreHigh = score;
+      localStorage.setItem(saveKeyScore, scoreHigh);
+    }
+  
+    // Den zerstörten Asteroiden aus dem Array entfernen, Sound abspielen und die Anzahl der verbleibenden Asteroiden reduzieren
+    roids.splice(index, 1);
+    fxHit.play();
+    roidsLeft--;
+  
+    // Überprüfen, ob alle Asteroiden zerstört wurden, um zum nächsten Level zu wechseln
+    if (roids.length === 0) {
+      level++;
+      newLevel();
+    }
+  }
+  // Die Funktion destroyAsteroid wird aufgerufen, wenn ein Asteroid zerstört wird. Sie aktualisiert die Punktzahl, erstellt neue Asteroiden,
+  // spielt den Zerstörungssound ab und prüft, ob das Level abgeschlossen wurde.
+  
+  function distBetweenPoints(x1, y1, x2, y2) {
+    // Berechnet den Abstand zwischen zwei Punkten im Raum.
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+  }
