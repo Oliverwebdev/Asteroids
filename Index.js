@@ -220,3 +220,66 @@ function drawShip(x, y, a, colour = "white") {
     ship.explodeTime = Math.ceil(shipExplodeDur * fps);
     fxExplode.play();
   }
+
+
+function gameOver() {
+    // Zeigt den Game Over-Text an und markiert das Raumschiff als zerstört.
+    ship.dead = true;
+    text = "Game Over";
+    textAlpha = 1.0;
+  }
+  // Die Funktionen distBetweenPoints, drawShip, explodeShip und gameOver haben spezifische Aufgaben im Spiel:
+  // distBetweenPoints berechnet den Abstand zwischen zwei Punkten.
+  // drawShip zeichnet das Raumschiff auf den Canvas.
+  // explodeShip startet die Explosion des Raumschiffs und spielt den Explosionssound ab.
+  // gameOver markiert das Raumschiff als zerstört und zeigt den entsprechenden Text im Spiel an.
+  
+  function keyDown(ev) {
+    // Event-Handler für Tastendrücke. Steuert die Bewegung und das Schießen des Raumschiffs.
+    if (ship.dead) {
+      return;
+    }
+  
+    switch (ev.keyCode) {
+      case 32:
+        // Leertaste: Feuert den Laser ab.
+        shootLaser();
+        break;
+      case 37:
+        // Pfeil nach links: Dreht das Raumschiff nach links.
+        ship.rot = ((shipTurnSpd / 180) * Math.PI) / fps;
+        break;
+      case 38:
+        // Pfeil nach oben: Aktiviert den Schub des Raumschiffs.
+        ship.thrusting = true;
+        break;
+      case 39:
+        // Pfeil nach rechts: Dreht das Raumschiff nach rechts.
+        ship.rot = ((-shipTurnSpd / 180) * Math.PI) / fps;
+        break;
+    }
+  }
+  
+  function keyUp(ev) {
+    // Event-Handler für das Loslassen von Tasten. Stoppt die Bewegung des Raumschiffs.
+    if (ship.dead) {
+      return;
+    }
+  
+    switch (ev.keyCode) {
+      case 32:
+        // Leertaste: Ermöglicht das erneute Schießen des Lasers.
+        ship.canShoot = true;
+        break;
+      case 37:
+      case 39:
+        // Pfeil nach links oder rechts: Stoppt die Drehung des Raumschiffs.
+        ship.rot = 0;
+        break;
+      case 38:
+        // Pfeil nach oben: Deaktiviert den Schub des Raumschiffs.
+        ship.thrusting = false;
+        break;
+    }
+  }
+  
