@@ -192,3 +192,31 @@ function destroyAsteroid(index) {
     // Berechnet den Abstand zwischen zwei Punkten im Raum.
     return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
   }
+
+
+function drawShip(x, y, a, colour = "white") {
+    // Zeichnet das Raumschiff auf den Canvas.
+    ctx.strokeStyle = colour;
+    ctx.lineWidth = shipSize / 20;
+    ctx.beginPath();
+    ctx.moveTo(
+      x + (4 / 3) * ship.r * Math.cos(a),
+      y - (4 / 3) * ship.r * Math.sin(a)
+    );
+    ctx.lineTo(
+      x - ship.r * ((2 / 3) * Math.cos(a) + Math.sin(a)),
+      y + ship.r * ((2 / 3) * Math.sin(a) - Math.cos(a))
+    );
+    ctx.lineTo(
+      x - ship.r * ((2 / 3) * Math.cos(a) - Math.sin(a)),
+      y + ship.r * ((2 / 3) * Math.sin(a) + Math.cos(a))
+    );
+    ctx.closePath();
+    ctx.stroke();
+  }
+  
+  function explodeShip() {
+    // Startet die Explosion des Raumschiffs.
+    ship.explodeTime = Math.ceil(shipExplodeDur * fps);
+    fxExplode.play();
+  }
