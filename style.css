@@ -12,6 +12,7 @@ body{
     width: 100vw;
     overflow: hidden;
     background-color: lightcyan;
+    font-family: 'Courier New', Courier, monospace;
 }
 
 .canvas-container{

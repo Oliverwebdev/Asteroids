@@ -110,7 +110,7 @@ let roidsLeft, roidsTotal;
 // roidsLeft: Die Anzahl der verbleibenden Asteroiden im Spiel.
 // roidsTotal: Die Gesamtanzahl der Asteroiden im Spiel.
 
-const localFont = "DejaVu Sans Mono";
+const localFont = "Courier New";
 
 // Spieleinstellungen einrichten
 let level, lives, roids, score, scoreHigh, ship, text, textAlpha;
