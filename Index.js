@@ -110,6 +110,8 @@ let roidsLeft, roidsTotal;
 // roidsLeft: Die Anzahl der verbleibenden Asteroiden im Spiel.
 // roidsTotal: Die Gesamtanzahl der Asteroiden im Spiel.
 
+const localFont = "DejaVu Sans Mono";
+
 // Spieleinstellungen einrichten
 let level, lives, roids, score, scoreHigh, ship, text, textAlpha;
 newGame();
@@ -630,7 +632,7 @@ function update() {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "rgba(255, 255, 255, " + textAlpha + ")";
-    ctx.font = "small-caps " + textSize + "px dejavu sans mono";
+    ctx.font = "small-caps " + textSize + localFont;
     ctx.fillText(text, canv.width / 2, canv.height * 0.75);
     textAlpha -= 1.0 / textFadeTime / fps;
   } else if (ship.dead) {
@@ -654,14 +656,14 @@ function update() {
   ctx.textAlign = "right";
   ctx.textBaseline = "middle";
   ctx.fillStyle = "white";
-  ctx.font = textSize + "px dejavu sans mono";
+  ctx.font = textSize + localFont ;
   ctx.fillText(score, canv.width - shipSize / 2, shipSize);
 
   // zeichne highscore funktion
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillStyle = "white";
-  ctx.font = textSize * 0.75 + "px dejavu sans mono";
+  ctx.font = textSize * 0.75 + localFont;
   ctx.fillText("BEST " + scoreHigh, canv.width / 2, shipSize);
 
   // treffer erkennen auf asteroids
