@@ -1,8 +1,8 @@
 const canv = document.getElementById("game-board");
 const ctx = canv.getContext("2d");
 
-canv.width = window.innerWidth;
-canv.height = window.innerHeight;
+// canv.width = window.innerWidth;
+// canv.height = window.innerHeight;
 
 const fps = 30;
 // Die Anzahl der Frames pro Sekunde im Spiel. Bestimmt die Aktualisierungsrate des Spiels.
@@ -444,7 +444,7 @@ function update() {
   ctx.fillRect(0, 0, canv.width, canv.height);
 
   // zeichne die asteroids
-  var a, r, x, y, offs, vert;
+  let a, r, x, y, offs, vert;
   for (let i = 0; i < roids.length; i++) {
     ctx.strokeStyle = "slategrey";
     ctx.lineWidth = shipSize / 20;

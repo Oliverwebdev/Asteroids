@@ -11,7 +11,7 @@ body{
     height: 100vh;
     width: 100vw;
     overflow: hidden;
-    background-color: darkblue;
+    background-color: lightcyan;
 }
 
 .canvas-container{
