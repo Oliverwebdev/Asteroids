@@ -23,6 +23,7 @@ const laserMax = 10;
 // Die maximale Anzahl von Laserstrahlen, die gleichzeitig auf dem Bildschirm sein können.
 
 const laserSpd = 500;
+
 // Die Geschwindigkeit, mit der der Laser sich bewegt.
 
 const roidJag = 0.4;
@@ -110,7 +111,7 @@ let roidsLeft, roidsTotal;
 // roidsLeft: Die Anzahl der verbleibenden Asteroiden im Spiel.
 // roidsTotal: Die Gesamtanzahl der Asteroiden im Spiel.
 
-const localFont = "DejaVu Sans Mono";
+const localFont = "Courier New";
 
 // Spieleinstellungen einrichten
 let level, lives, roids, score, scoreHigh, ship, text, textAlpha;
@@ -190,7 +191,7 @@ function destroyAsteroid(index) {
 
 function distBetweenPoints(x1, y1, x2, y2) {
   // Berechnet den Abstand zwischen zwei Punkten im Raum.
-  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+  return Math.sqrt(Math.pow (x2 - x1, 2) + Math.pow(y2 - y1, 2));
 }
 
 function drawShip(x, y, a, colour = "white") {
